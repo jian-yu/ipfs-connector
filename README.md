@@ -1,3 +1,3 @@
 # IPFS-CONNECTOR
 
-this resposity is aim to test ipfs now!
+this repository aim to test ipfs now!
