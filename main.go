@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	ipld "github.com/ipfs/go-ipld-format"
 	"github.com/ipfs/interface-go-ipfs-core/path"
@@ -17,7 +18,7 @@ const (
 )
 
 func main() {
-	Get("/ipfs/QmUCNsMiSFM2p1LnHpWCwFrPuWqcPnAZquvsgPinHWxBTc")
+	Put()
 }
 
 func Get(ipfsPath string) {
@@ -63,4 +64,29 @@ func GetOne(ctx context.Context, node ipld.Node, api *ipfs.HttpApi) ([]byte, err
 		data = append(data, data[:]...)
 	}
 	return data, err
+}
+
+func Put() {
+	ctx := context.Background()
+	multiAddr, err := ma.NewMultiaddr(ipfsGateway)
+	if err != nil {
+		log.Fatalf("generate multiaddr error by %s", err)
+		return
+	}
+	ipfsApi, err := ipfs.NewApi(multiAddr)
+	if err != nil {
+		log.Fatalf("ipfs http connect error by %s", err)
+		return
+	}
+	file, err := os.Open("README.md")
+	if err != nil {
+		log.Fatalf("open file error by %s", err)
+		return
+	}
+	bStat, err := ipfsApi.Block().Put(ctx, file)
+	if err != nil {
+		log.Fatalf("put file into ipfs error by %s", err)
+		return
+	}
+	log.Printf("file store path is %s and size is %d", bStat.Path().String(), bStat.Size())
 }
